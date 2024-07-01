@@ -8,7 +8,7 @@ class Step_Motor:
         self.stride_num = 360 / self.stride_angle / 8 # # of Pulse Cycle need for a single Cycle
         self.max_speed = 15 # Max Speed In RPM
 
-        #Other Informations
+        #Other Information
         #Multiple Step Modes
         self.single_step = [[int(i == j) for j in range(3, -1, -1)] for i in range(4)]
         self.full_step = [[int((i == j) or ((j - 1 - i) % 4 == 0)) for j in range(3, -1, -1)] for i in range(4)]
@@ -42,7 +42,7 @@ class Step_Motor:
             speed = 1 / speed
         else:
             raise Exception("InValid Speed Mode")
-        if speed < 60 / self.max_speed: # Faster Than MAX SPEED..!
+        if speed < 60 / self.max_speed: # Faster Than MAX SPEED.!
             speed = 60 / self.max_speed
         
         pulse_time = speed / self.stride_num / len(self.step)
@@ -55,7 +55,7 @@ class Step_Motor:
             self.action_target = len(self.action_list)
             return []
     
-    def do(self): # Needs to Executed every cycle
+    def do(self): # Needs to be Executed every cycle
         time_from_start = time.time() - self.start_time
         time_from_target = time.time() - self.target_time
         
@@ -86,7 +86,6 @@ if __name__ == "__main__":
     step_motor1 = Step_Motor([8, 10, 12, 16], "CW", "Half", 10, "s")
     step_motor1.action_list = [[0, "Move"], [10, "Stop"], [15, "CCW"], [15, "Speed", 20, "s"], [15, "Move"], [20, "Stop"]]
     # 0~10s CW circle, 15~20s CCW quarter circle
-    
     try:
         while True:
             step_motor1.do()

@@ -281,9 +281,9 @@ void StepMotor::error_print(){
 }
 
 
-StepMotor motor1(12, 13);
+StepMotor motor1(12, 13); // Step Motor Initialization
 int check = 0;
-//Keypad
+// Keypad Initialization
 const byte ROWS = 4; 
 const byte COLS = 4; 
 char hexaKeys[ROWS][COLS] = {
@@ -298,22 +298,22 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 
 void setup() {
   // put your setup code here, to run once:
-  motor1.Speed(Fraction(10)); // 60/8 sec for 1 rotation
-  Serial.begin(9600);
+  motor1.Speed(Fraction(10)); // 10 sec for 1 rotation
+  Serial.begin(9600); // Serial Start
 }
 
 
 void loop() {
   // put your main code here, to run repeatedly:
-  char input = customKeypad.getKey();
-  motor1.calc();
-  check += 1;
-  if(check % 10000 == 0) check = 0;
+  char input = customKeypad.getKey(); //get key from touch board
+  motor1.calc(); // Every calc needed for single loop
+  check += 1; // check duration(Not needed now)
+  if(check % 10000 == 0) check = 0; // Some errors exceeding int
   if (input){
-    if(input == 'D') motor1.error_print();
-    if('0' <= input && input <= '9'){
+    if(input == 'D') motor1.error_print(); //Press D for Errors
+    if('0' <= input && input <= '9'){ //Press Number
       int num = input - '0';
-      motor1.Start(num);
+      motor1.Start(num); // Move StepMotor to the num
     }
   }
 }

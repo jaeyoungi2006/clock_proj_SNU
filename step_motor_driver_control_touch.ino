@@ -235,7 +235,7 @@ void StepMotor::calc(){
       time_move.serial_print();
       Serial.println();
     }
-    if(time > time_move){Serial.println("Excedeed the time"); error_count += 1;} // if we set motor too fast, processor would not make it
+    if(time > time_move){Serial.println("Excedeed the time"); error_count += 1;} // if we set motor too fast, process would waste some ticks
   }
   
   if(time > reset_time){ //we set denominator & numerator as long(32bit), so if exceeded, reset it

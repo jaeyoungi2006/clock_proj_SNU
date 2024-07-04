@@ -202,14 +202,14 @@ class StepMotor{
     void calculate_time_delay();
     void Start(int target = -1);
     void Stop();
-    void Speed(Fraction sp);
-    void calc();
-    void error_print();
+    void Update_Speed(Fraction sp);
+    void Calc();
+    void Error_Print();
     Chrono chrono;
     StepMotor(int step, int dir): step_pin(step), dir_pin(dir), speed(Fraction(0)){calculate_time_delay(); pinMode(step, OUTPUT); pinMode(dir, OUTPUT);}
 };
 
-void StepMotor::calc(){
+void StepMotor::Calc(){
   Fraction time = Fraction(chrono.elapsed(), 1000);
   if(time > time_move && is_rotating){
     if(mot) digitalWrite(step_pin, HIGH);
@@ -271,12 +271,12 @@ void StepMotor::Start(int target = -1){
 void StepMotor::Stop(){
   is_rotating = 0;
 }
-void StepMotor::Speed(Fraction sp){
+void StepMotor::Update_Speed(Fraction sp){
   speed = sp;
   calculate_time_delay();
 }
 
-void StepMotor::error_print(){
+void StepMotor::Error_Print(){
   Serial.println((String) "Error - Processor loses: " + error_count + " times");
 }
 
@@ -298,7 +298,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 
 void setup() {
   // put your setup code here, to run once:
-  motor1.Speed(Fraction(10)); // 10 sec for 1 rotation
+  motor1.Update_Speed(Fraction(10)); // 10 sec for 1 rotation
   Serial.begin(9600); // Serial Start
 }
 
@@ -306,11 +306,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   char input = customKeypad.getKey(); //get key from touch board
-  motor1.calc(); // Every calc needed for single loop
+  motor1.Calc(); // Every calc needed for single loop
   check += 1; // check duration(Not needed now)
   if(check % 10000 == 0) check = 0; // Some errors exceeding int
   if (input){
-    if(input == 'D') motor1.error_print(); //Press D for Errors
+    if(input == 'D') motor1.Error_Print(); //Press D for Errors
     if('0' <= input && input <= '9'){ //Press Number
       int num = input - '0';
       motor1.Start(num); // Move StepMotor to the num

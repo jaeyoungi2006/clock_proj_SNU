@@ -6,6 +6,7 @@ class StepMotor{
     Fraction time_delay = Fraction(0);
     Fraction time_move = Fraction(0);
     Fraction last_move = Fraction(0);
+    Fraction stop_time = Fraction(0);
     long tick_from_rot = 0;
     long tick_target = 0; // how much to tick
     long reset_time = 10000;
@@ -18,8 +19,10 @@ class StepMotor{
   public:
     long stride_num = 400;
     bool is_rotating = 0;
+    bool is_enabled = 0;
     int step_pin;
     int dir_pin;
+    int enable_pin;
     int target_num = 0; // target number to move
     bool mode;
     Fraction speed;
@@ -31,8 +34,8 @@ class StepMotor{
     void error_print();
     Fraction quadratic_move(Fraction total_time, Fraction y);
     Chrono chrono;
-    StepMotor(int motor_num, int step, int dir, int mode = 0, int step_time_sec = 10, int gear_ratio = 1, int microstepping = 1): motor_num(motor_num), step_pin(step), dir_pin(dir), mode(mode), step_time_sec(step_time_sec), gear_ratio(gear_ratio), speed(Fraction(0)), microstepping(microstepping) {
-      calculate_time_delay(); pinMode(step, OUTPUT); pinMode(dir, OUTPUT);
+    StepMotor(int motor_num, int enable, int step, int dir, int mode = 0, int step_time_sec = 10, int gear_ratio = 1, int microstepping = 1): motor_num(motor_num), step_pin(step), dir_pin(dir), enable_pin(enable), mode(mode), step_time_sec(step_time_sec), gear_ratio(gear_ratio), speed(Fraction(0)), microstepping(microstepping) {
+      calculate_time_delay(); pinMode(step, OUTPUT); pinMode(dir, OUTPUT); pinMode(enable, OUTPUT); digitalWrite(enable, HIGH);
     }
 };
 
@@ -49,6 +52,11 @@ Fraction StepMotor::quadratic_move(Fraction total_time, Fraction y){
 
 void StepMotor::calc(){
   Fraction time = Fraction(chrono.elapsed(), 1000);
+  if(!is_rotating && is_enabled && time >= stop_time){
+    is_enabled = 0;
+    digitalWrite(enable_pin, HIGH);
+    Serial.println("Motor Disabled");
+  }
   if(time > time_move && is_rotating && time - last_move >= Fraction(1, 500) / Fraction(microstepping)){
     if(mot) digitalWrite(step_pin, HIGH);
     else digitalWrite(step_pin, LOW);
@@ -100,8 +108,8 @@ void StepMotor::Start(int target = -1){
   if(mode == 0){
     if(target != -1 && !is_rotating && target != target_num){   
       chrono.restart(0);
-      time_move = 0;
-      last_move = Fraction(0);
+      time_move = Fraction(1, 100);
+      last_move = Fraction(1, 100);
       is_rotating = 1;
       int need_move = (target - target_num); //how much need to move(in num)
       if(need_move == 0 && tick_target == tick_from_rot) is_rotating = 0;
@@ -114,6 +122,11 @@ void StepMotor::Start(int target = -1){
       //add_to_frame('>', 4);
       //add_to_frame(target, 8);
       //display_frame();
+      Serial.println(motor_num, is_rotating);
+      if(is_rotating){
+        digitalWrite(enable_pin, LOW);
+        is_enabled = 1;
+      }
       target_num = target;
     }
     else{
@@ -152,6 +165,7 @@ void StepMotor::Stop(){
   //add_to_frame(target_num, 4);
   //display_frame();
   //time_move = time_move + Fraction(9, 10);
+  stop_time = Fraction(chrono.elapsed(), 1000) + Fraction(1, 2);
 }
 
 void StepMotor::Speed(Fraction sp){

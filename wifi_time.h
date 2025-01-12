@@ -5,7 +5,8 @@
 #include <Chrono.h>
 
 #define TIMEZONE_OFFSET_HOURS 9
-#define UPDATE_TIME_WIFI_PERIOD 'H' //60 sec -> 1 minute ('D': Day, 'H': Hour, '6': 6Hour, 'M':Minute)
+#define UPDATE_TIME_WIFI_PERIOD 'H' // 3600 sec -> 1 hour ('D': Day, 'H': Hour, '6': 6Hour, 'M':Minute)
+#define RESTART_PERIOD 'D' // RESET By Day
 
 char ssid[3][30] = {SECRET_SSID1, SECRET_SSID2, SECRET_SSID3};
 char pass[3][30] = {SECRET_PASS1, SECRET_PASS2, SECRET_PASS3};
@@ -14,6 +15,10 @@ constexpr unsigned int LOCAL_PORT = 2390;  // local port to listen for UDP packe
 constexpr int NTP_PACKET_SIZE = 48; // NTP timestamp is in the first 48 bytes of the message
 int wifiStatus = WL_IDLE_STATUS;
 IPAddress timeServer(162, 159, 200, 123); // pool.ntp.org NTP server
+
+void reboot() {
+  NVIC_SystemReset();
+}
 
 class TimeNow{
   private:
@@ -52,12 +57,13 @@ bool TimeNow::connectToWifi(uint8_t maxTries){
     tries = 0;
     while (wifiStatus != WL_CONNECTED && tries < maxTries) {
       Serial.print("Attempting to connect to SSID: ");
-      Serial.println(ssid);
-      Serial.println(pass);
+      Serial.println(ssid[i]);
+      Serial.println(pass[i]);
       // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-      wifiStatus = WiFi.begin(ssid, pass);
+      wifiStatus = WiFi.begin(ssid[i], pass[i]);
       tries++;
     }
+    if(wifiStatus == WL_CONNECTED) break;
   }
 
   if(tries >= maxTries){
@@ -183,6 +189,9 @@ bool TimeNow::updateTime(){
        time_now.add(1);
        chrono.restart(0);
      }
+    }
+    if(time_now.is_update_period(RESTART_PERIOD)){
+      reboot();
     }
     return 1;
   }

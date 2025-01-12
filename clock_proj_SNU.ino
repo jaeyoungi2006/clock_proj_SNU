@@ -36,12 +36,12 @@ void rotateFrame(){
 }
 
 StepMotor motors[4] = {
-  StepMotor(1, 2, 3),
-  StepMotor(2, 4, 5),
-  StepMotor(3, 6, 7),
-  StepMotor(4, 8, 9),//6, 12, 13, 1, 1, 4
+  StepMotor(1, 2, 3, 4),
+  StepMotor(2, 5, 6, 7),
+  StepMotor(3, 8, 9, 10),
+  StepMotor(4, 11, 12, 13),//6, 12, 13, 1, 1, 4
 };
-int base_speed[4] = {2, 2, 2, 2};
+int base_speed[4] = {5, 5, 5, 5};
 
 
 bool program_running;

@@ -7,8 +7,8 @@ class Time{
     void add(int time){
       second += time;
       minute += second / 60;
-      second %= 60;
       hour += minute / 60;
+      second %= 60;
       minute %= 60;
       hour %= 24;
     }
